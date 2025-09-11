@@ -2,19 +2,18 @@
 
 import { useState, useRef } from "react";
 
-export default function EligibilityChecker() {
+export default function EligibilityChecker({
+  onCheck,
+}: {
+  onCheck: (username: string, eligible: boolean) => void;
+}) {
   const [username, setUsername] = useState("");
-  const [checkedUser, setCheckedUser] = useState("");
-  const [result, setResult] = useState<null | boolean>(null);
   const [loading, setLoading] = useState(false);
-
-  const inputRef = useRef<HTMLInputElement>(null); // 👈 referencia al input
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const checkEligibility = async () => {
     if (!username) return;
-
     setLoading(true);
-    setResult(null);
 
     try {
       const res = await fetch("/winners.json");
@@ -24,10 +23,10 @@ export default function EligibilityChecker() {
         (name: string) => name.toLowerCase() === username.toLowerCase().trim()
       );
 
-      setCheckedUser(username);
-      setResult(eligible);
+      // 👇 Avisamos al padre el resultado
+      onCheck(username, eligible);
 
-      // 👇 fuerza el cursor al final del input
+      // 🔹 Cursor siempre al final
       if (inputRef.current) {
         const length = inputRef.current.value.length;
         inputRef.current.setSelectionRange(length, length);
@@ -35,7 +34,7 @@ export default function EligibilityChecker() {
       }
     } catch (err) {
       console.error("Error checking eligibility:", err);
-      setResult(false);
+      onCheck(username, false);
     } finally {
       setLoading(false);
     }
@@ -62,18 +61,6 @@ export default function EligibilityChecker() {
           {loading ? "Checking..." : "Check"}
         </button>
       </div>
-
-      {result !== null && (
-        <div
-          className={`mt-2 font-medium ${
-            result ? "text-green-400" : "text-red-400"
-          }`}
-        >
-          {result
-            ? `${checkedUser} is a WINNER! 🏆`
-            : `${checkedUser} is not in the winners list ❌`}
-        </div>
-      )}
     </div>
   );
 }
