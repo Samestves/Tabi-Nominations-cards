@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import confetti from "canvas-confetti";
 
 export default function EligibilityChecker({
   onCheck,
@@ -10,6 +11,37 @@ export default function EligibilityChecker({
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [eligible, setEligible] = useState<null | boolean>(null);
+
+  const launchConfetti = () => {
+    const end = Date.now() + 3 * 1000; // 3 segundos
+    const colors = ["#ff4d4d", "#ff7f7f", "#ff9999", "#ffb3b3"];
+    const frame = () => {
+      if (Date.now() > end) return;
+
+      confetti({
+        particleCount: 5,
+        angle: 60,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 0, y: 0.5 },
+        colors,
+      });
+
+      confetti({
+        particleCount: 2,
+        angle: 120,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 1, y: 0.5 },
+        colors,
+      });
+
+      requestAnimationFrame(frame);
+    };
+
+    frame();
+  };
 
   const checkEligibility = async () => {
     if (!username) return;
@@ -19,12 +51,12 @@ export default function EligibilityChecker({
       const res = await fetch("/winners.json");
       const data = await res.json();
 
-      const eligible = data.winners.some(
+      const isEligible = data.winners.some(
         (name: string) => name.toLowerCase() === username.toLowerCase().trim()
       );
 
-      // 👇 Avisamos al padre el resultado
-      onCheck(username, eligible);
+      setEligible(isEligible); // guardamos para lanzar confeti
+      onCheck(username, isEligible);
 
       // 🔹 Cursor siempre al final
       if (inputRef.current) {
@@ -34,11 +66,19 @@ export default function EligibilityChecker({
       }
     } catch (err) {
       console.error("Error checking eligibility:", err);
+      setEligible(false);
       onCheck(username, false);
     } finally {
       setLoading(false);
     }
   };
+
+  // Disparar confeti automáticamente si es elegible
+  useEffect(() => {
+    if (eligible) {
+      launchConfetti();
+    }
+  }, [eligible]);
 
   return (
     <div className="flex flex-col items-center gap-3 w-full max-w-sm mx-auto">

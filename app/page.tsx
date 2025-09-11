@@ -37,21 +37,52 @@ export default function Page() {
         <Logo />
         <Separator />
 
-        {eligible === false && (
-          <motion.video
-            src="/angry.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="mt-8 w-48 h-48 object-contain mix-blend-screen"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          />
-        )}
+        {/* ================= Resultado (Gif o Card) ================= */}
+        <div className="flex justify-center mt-12 min-h-[20rem] items-center">
+          {eligible === null && (
+            <p className="text-gray-400 italic animate-pulse">
+              Enter your X username to check...
+            </p>
+          )}
 
-        {/* Eligibilidad */}
+          {eligible === false && (
+            <div className="flex flex-col items-center mt-8">
+              <motion.img
+                src="/angry.gif"
+                alt="Not eligible"
+                className="w-72 h-72 object-contain"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+              />
+              <motion.p
+                className="mt-4 text-center text-red-400 font-semibold text-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                Oops! You didn’t make the cut this time 😅
+              </motion.p>
+            </div>
+          )}
+
+          {eligible === true && (
+            <ProfileCard
+              className="mt-6"
+              name={checkedUser}
+              title="Nomination Card"
+              avatarUrl="/avatar.png"
+              iconUrl="/icon.png"
+              showUserInfo={false}
+              enableTilt={true}
+              enableMobileTilt={false}
+              behindGradient="linear-gradient(to right, #f5857f, #ff6363, #9e0039)"
+              showBehindGradient={true}
+            />
+          )}
+        </div>
+
+        {/* ================= Check Eligibility debajo siempre ================= */}
         <motion.section
           {...motionSettings}
           className="w-full max-w-sm flex flex-col items-center gap-4 mt-12 mb-12"
@@ -62,22 +93,7 @@ export default function Page() {
           <EligibilityChecker onCheck={handleCheck} />
         </motion.section>
 
-        {/* Render condicional */}
-        {eligible === true && (
-          <ProfileCard
-            className="mt-6"
-            name={checkedUser}
-            title="Nomination Card"
-            avatarUrl="/avatar.png"
-            iconUrl="/icon.png"
-            showUserInfo={false}
-            enableTilt={true}
-            enableMobileTilt={false}
-            behindGradient="linear-gradient(to right, #f5857f, #ff6363, #9e0039)"
-            showBehindGradient={true}
-          />
-        )}
-
+        {/* FAQ */}
         <FAQ
           items={[
             {
