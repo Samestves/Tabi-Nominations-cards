@@ -1,64 +1,72 @@
 "use client";
 
-import Image from "next/image";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useState } from "react";
 
-export default function ConnectButton() {
-  const { data: session } = useSession();
+export default function ConnectInput() {
+  const [username, setUsername] = useState("");
+  const [result, setResult] = useState<null | boolean>(null); // null = no chequeado, true = elegible, false = no elegible
+  const [loading, setLoading] = useState(false);
 
-  if (session) {
-    const username = session.user?.name || "User";
+  const checkEligibility = async () => {
+    if (!username) return;
 
-    return (
-      <button
-        onClick={() => signOut()}
-        className="group relative flex items-center justify-center gap-3 px-7 py-3.5 
-                   rounded-full font-medium text-white backdrop-blur-lg transition-all duration-500
-                   hover:scale-[1.06] hover:shadow-[0_0_25px_rgba(209,16,43,0.35)]
-                   focus:outline-none"
-        style={{
-          background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(209,16,43,0.4)",
-        }}
-      >
-        <span className="text-white text-base tracking-wide group-hover:text-[#d1102b] transition-colors">
-          @{username} • Disconnect
-        </span>
-      </button>
-    );
-  }
+    setLoading(true);
+    setResult(null);
+
+    try {
+      // Simulación de API o validación
+      // Aquí puedes reemplazar con fetch a tu backend
+      await new Promise((res) => setTimeout(res, 800));
+
+      // Ejemplo aleatorio de elegibilidad
+      const eligible = username.toLowerCase().includes("tabi");
+      setResult(eligible);
+    } catch (error) {
+      console.error(error);
+      setResult(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      checkEligibility();
+    }
+  };
 
   return (
-    <button
-      onClick={() => signIn("twitter")}
-      className="group relative flex items-center justify-center gap-3 px-7 py-3.5 
-                 rounded-full font-medium text-white backdrop-blur-lg transition-all duration-500
-                 hover:scale-[1.06] hover:shadow-[0_0_25px_rgba(209,16,43,0.35)]
-                 focus:outline-none"
-      style={{
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(209,16,43,0.4)",
-      }}
-    >
-      <span className="text-white text-base tracking-wide group-hover:text-[#d1102b] transition-colors">
-        Claim with
-      </span>
+    <div className="flex flex-col items-center gap-3 w-full max-w-sm mx-auto">
+      <div className="relative w-full">
+        <input
+          type="text"
+          placeholder="Enter your X username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full px-5 py-3 rounded-full bg-black/30 border border-red-600 text-white font-medium focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-gray-400 transition"
+        />
 
-      <Image
-        src="/x.png"
-        alt="X Logo"
-        width={22}
-        height={22}
-        className="opacity-90 group-hover:opacity-100 transition-opacity"
-      />
+        <button
+          onClick={checkEligibility}
+          disabled={loading}
+          className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 bg-red-600 rounded-full text-white font-semibold hover:bg-red-500 transition disabled:opacity-50"
+        >
+          {loading ? "Checking..." : "Check"}
+        </button>
+      </div>
 
-      <span
-        className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition duration-700 blur-2xl"
-        style={{
-          background:
-            "radial-gradient(circle at center, rgba(209,16,43,0.25), transparent 70%)",
-        }}
-      />
-    </button>
+      {result !== null && (
+        <div
+          className={`mt-2 font-medium ${
+            result ? "text-green-400" : "text-red-400"
+          }`}
+        >
+          {result
+            ? `${username} is eligible! ✅`
+            : `${username} is not eligible ❌`}
+        </div>
+      )}
+    </div>
   );
 }
