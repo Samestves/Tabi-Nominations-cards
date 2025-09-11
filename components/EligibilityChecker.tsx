@@ -12,6 +12,7 @@ export default function EligibilityChecker({
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [eligible, setEligible] = useState<null | boolean>(null);
+  const [confettiKey, setConfettiKey] = useState(0); // para reiniciar confeti
 
   const launchConfetti = () => {
     const end = Date.now() + 3 * 1000; // 3 segundos
@@ -43,6 +44,19 @@ export default function EligibilityChecker({
     frame();
   };
 
+  const normalizeUsername = (input: string) => {
+    let name = input.trim().toLowerCase();
+
+    // quitar "@"
+    if (name.startsWith("@")) name = name.slice(1);
+
+    // quitar URL de X
+    if (name.startsWith("https://x.com/"))
+      name = name.replace("https://x.com/", "");
+
+    return name;
+  };
+
   const checkEligibility = async () => {
     if (!username) return;
     setLoading(true);
@@ -51,18 +65,27 @@ export default function EligibilityChecker({
       const res = await fetch("/winners.json");
       const data = await res.json();
 
-      const isEligible = data.winners.some(
-        (name: string) => name.toLowerCase() === username.toLowerCase().trim()
+      const cleanedInput = normalizeUsername(username);
+
+      // 🔹 Buscar coincidencia case-insensitive
+      const matchedName = data.winners.find(
+        (name: string) => name.toLowerCase() === cleanedInput
       );
 
-      setEligible(isEligible); // guardamos para lanzar confeti
-      onCheck(username, isEligible);
+      const isEligible = !!matchedName;
+      setEligible(isEligible);
 
-      // 🔹 Cursor siempre al final
+      // 🔹 Usar el nombre real de winners.json
+      onCheck(matchedName || username, isEligible);
+
+      // 🔹 Reiniciar animación de confeti si hay match
+      if (isEligible) {
+        setConfettiKey((k) => k + 1); // cambia la key para reiniciar
+      }
+
+      // 🔹 Cerrar teclado móvil
       if (inputRef.current) {
-        const length = inputRef.current.value.length;
-        inputRef.current.setSelectionRange(length, length);
-        inputRef.current.focus();
+        inputRef.current.blur();
       }
     } catch (err) {
       console.error("Error checking eligibility:", err);
@@ -73,12 +96,12 @@ export default function EligibilityChecker({
     }
   };
 
-  // Disparar confeti automáticamente si es elegible
+  // 🔹 Disparar confeti automáticamente si hay match
   useEffect(() => {
     if (eligible) {
       launchConfetti();
     }
-  }, [eligible]);
+  }, [eligible, confettiKey]); // reinicia si confettiKey cambia
 
   return (
     <div className="flex flex-col items-center gap-3 w-full max-w-sm mx-auto">
