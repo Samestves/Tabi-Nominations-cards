@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
-export default function ConnectInput() {
+export default function EligibilityChecker() {
   const [username, setUsername] = useState("");
-  const [result, setResult] = useState<null | boolean>(null); // null = no chequeado, true = elegible, false = no elegible
+  const [checkedUser, setCheckedUser] = useState("");
+  const [result, setResult] = useState<null | boolean>(null);
   const [loading, setLoading] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null); // 👈 referencia al input
 
   const checkEligibility = async () => {
     if (!username) return;
@@ -14,24 +17,27 @@ export default function ConnectInput() {
     setResult(null);
 
     try {
-      // Simulación de API o validación
-      // Aquí puedes reemplazar con fetch a tu backend
-      await new Promise((res) => setTimeout(res, 800));
+      const res = await fetch("/winners.json");
+      const data = await res.json();
 
-      // Ejemplo aleatorio de elegibilidad
-      const eligible = username.toLowerCase().includes("tabi");
+      const eligible = data.winners.some(
+        (name: string) => name.toLowerCase() === username.toLowerCase().trim()
+      );
+
+      setCheckedUser(username);
       setResult(eligible);
-    } catch (error) {
-      console.error(error);
+
+      // 👇 fuerza el cursor al final del input
+      if (inputRef.current) {
+        const length = inputRef.current.value.length;
+        inputRef.current.setSelectionRange(length, length);
+        inputRef.current.focus();
+      }
+    } catch (err) {
+      console.error("Error checking eligibility:", err);
       setResult(false);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      checkEligibility();
     }
   };
 
@@ -39,11 +45,12 @@ export default function ConnectInput() {
     <div className="flex flex-col items-center gap-3 w-full max-w-sm mx-auto">
       <div className="relative w-full">
         <input
+          ref={inputRef}
           type="text"
           placeholder="Enter your X username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => e.key === "Enter" && checkEligibility()}
           className="w-full px-5 py-3 rounded-full bg-black/30 border border-red-600 text-white font-medium focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-gray-400 transition"
         />
 
@@ -63,8 +70,8 @@ export default function ConnectInput() {
           }`}
         >
           {result
-            ? `${username} is eligible! ✅`
-            : `${username} is not eligible ❌`}
+            ? `${checkedUser} is a WINNER! 🏆`
+            : `${checkedUser} is not in the winners list ❌`}
         </div>
       )}
     </div>

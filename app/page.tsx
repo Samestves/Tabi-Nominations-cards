@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Logo from "../components/Logot";
 import Separator from "../components/Separatort";
-import ConnectButton from "../components/ConnectButton";
+import EligibilityChecker from "../components/EligibilityChecker";
 import FAQ from "../components/FAQ";
 import BackgroundGradient from "../components/BackgroundGradient";
 import LightRaysComponent from "../components/LightRaysComponent";
@@ -54,7 +54,7 @@ export default function Page() {
           <h2 className="text-xl sm:text-2xl font-bold text-center">
             Check Your Eligibility
           </h2>
-          <ConnectButton />
+          <EligibilityChecker />
         </motion.section>
 
         {/* FAQ Section */}
