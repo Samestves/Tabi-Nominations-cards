@@ -63,7 +63,7 @@ export default function Page() {
   const [eligible, setEligible] = useState<null | boolean>(null);
   const [checkedUser, setCheckedUser] = useState("");
 
-  const handleCheck = (username: string, isEligible: boolean) => {
+  const handleCheck = (username: string, isEligible: boolean | null) => {
     setCheckedUser(username);
     setEligible(isEligible);
   };
@@ -144,7 +144,8 @@ export default function Page() {
                 className="w-72 h-72 object-contain"
               />
               <p className="mt-4 text-center text-red-400 font-semibold text-lg">
-                Oops! You didn’t make the cut this time 😅
+                You are not eligible for the nomination card at this time. Keep
+                contributing and try again!
               </p>
             </motion.div>
           )}
@@ -158,7 +159,7 @@ export default function Page() {
               className="flex flex-col items-center"
             >
               <p className="text-green-400 font-semibold text-lg mb-4">
-                Congrats! You're eligible 🎉
+                Congrats! You are eligible 🎉
               </p>
               <ProfileCard
                 name={checkedUser}

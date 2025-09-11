@@ -6,14 +6,9 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar";
 // ==========================================
 // Avatar
 // ==========================================
-interface AvatarProps
-  extends React.ComponentProps<typeof AvatarPrimitive.Root> {}
-
-export const Avatar: React.FC<AvatarProps> = ({
-  className,
-  children,
-  ...props
-}) => (
+export const Avatar: React.FC<
+  React.ComponentProps<typeof AvatarPrimitive.Root>
+> = ({ className, children, ...props }) => (
   <AvatarPrimitive.Root
     className={`group relative inline-flex items-center justify-center rounded-full w-12 h-12 ${className}`}
     {...props}
@@ -25,13 +20,9 @@ export const Avatar: React.FC<AvatarProps> = ({
 // ==========================================
 // AvatarImage
 // ==========================================
-interface AvatarImageProps
-  extends React.ComponentProps<typeof AvatarPrimitive.Image> {}
-
-export const AvatarImage: React.FC<AvatarImageProps> = ({
-  className,
-  ...props
-}) => (
+export const AvatarImage: React.FC<
+  React.ComponentProps<typeof AvatarPrimitive.Image>
+> = ({ className, ...props }) => (
   <AvatarPrimitive.Image
     className={`w-full h-full object-cover rounded-full ${className}`}
     {...props}
@@ -41,13 +32,9 @@ export const AvatarImage: React.FC<AvatarImageProps> = ({
 // ==========================================
 // AvatarFallback
 // ==========================================
-interface AvatarFallbackProps
-  extends React.ComponentProps<typeof AvatarPrimitive.Fallback> {}
-
-export const AvatarFallback: React.FC<AvatarFallbackProps> = ({
-  className,
-  ...props
-}) => (
+export const AvatarFallback: React.FC<
+  React.ComponentProps<typeof AvatarPrimitive.Fallback>
+> = ({ className, ...props }) => (
   <AvatarPrimitive.Fallback
     className={`flex items-center justify-center w-full h-full bg-gray-400 text-white rounded-full ${className}`}
     {...props}
@@ -57,11 +44,7 @@ export const AvatarFallback: React.FC<AvatarFallbackProps> = ({
 // ==========================================
 // Tooltip
 // ==========================================
-interface AvatarGroupTooltipProps {
-  children: React.ReactNode;
-}
-
-export const AvatarGroupTooltip: React.FC<AvatarGroupTooltipProps> = ({
+export const AvatarGroupTooltip: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   return (

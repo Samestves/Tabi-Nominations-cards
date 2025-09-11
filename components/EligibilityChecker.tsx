@@ -6,7 +6,7 @@ import confetti from "canvas-confetti";
 export default function EligibilityChecker({
   onCheck,
 }: {
-  onCheck: (username: string, eligible: boolean) => void;
+  onCheck: (username: string, eligible: boolean | null) => void;
 }) {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,10 +47,7 @@ export default function EligibilityChecker({
   const normalizeUsername = (input: string) => {
     let name = input.trim().toLowerCase();
 
-    // quitar "@"
     if (name.startsWith("@")) name = name.slice(1);
-
-    // quitar URL de X
     if (name.startsWith("https://x.com/"))
       name = name.replace("https://x.com/", "");
 
@@ -58,7 +55,7 @@ export default function EligibilityChecker({
   };
 
   const checkEligibility = async () => {
-    if (!username) return;
+    if (!username.trim()) return; // ❌ no hacer nada si está vacío
     setLoading(true);
 
     try {
@@ -67,7 +64,6 @@ export default function EligibilityChecker({
 
       const cleanedInput = normalizeUsername(username);
 
-      // 🔹 Buscar coincidencia case-insensitive
       const matchedName = data.winners.find(
         (name: string) => name.toLowerCase() === cleanedInput
       );
@@ -75,18 +71,11 @@ export default function EligibilityChecker({
       const isEligible = !!matchedName;
       setEligible(isEligible);
 
-      // 🔹 Usar el nombre real de winners.json
       onCheck(matchedName || username, isEligible);
 
-      // 🔹 Reiniciar animación de confeti si hay match
-      if (isEligible) {
-        setConfettiKey((k) => k + 1); // cambia la key para reiniciar
-      }
+      if (isEligible) setConfettiKey((k) => k + 1);
 
-      // 🔹 Cerrar teclado móvil
-      if (inputRef.current) {
-        inputRef.current.blur();
-      }
+      if (inputRef.current) inputRef.current.blur();
     } catch (err) {
       console.error("Error checking eligibility:", err);
       setEligible(false);
@@ -96,12 +85,11 @@ export default function EligibilityChecker({
     }
   };
 
-  // 🔹 Disparar confeti automáticamente si hay match
   useEffect(() => {
     if (eligible) {
       launchConfetti();
     }
-  }, [eligible, confettiKey]); // reinicia si confettiKey cambia
+  }, [eligible, confettiKey]);
 
   return (
     <div className="flex flex-col items-center gap-3 w-full max-w-sm mx-auto">
@@ -111,7 +99,16 @@ export default function EligibilityChecker({
           type="text"
           placeholder="Enter your X username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setUsername(value);
+
+            // 🔹 Si queda vacío, resetear todo a carta misteriosa
+            if (value.trim() === "") {
+              setEligible(null);
+              onCheck("", null);
+            }
+          }}
           onKeyDown={(e) => e.key === "Enter" && checkEligibility()}
           className="w-full px-5 py-3 rounded-full bg-black/30 border border-red-600 text-white font-medium focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-gray-400 transition"
         />
