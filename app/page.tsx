@@ -16,6 +16,7 @@ import {
   AvatarFallback,
   AvatarGroupTooltip,
 } from "@/components/ui/avatar";
+import TestLogin from "../components/TestLogin";
 
 // Configuración de animaciones
 const motionSettings = {
@@ -174,6 +175,9 @@ export default function Page() {
             </motion.div>
           )}
         </div>
+
+        {/* 🔹 Aquí metemos el login */}
+        <TestLogin />
 
         {/* ================= Check Eligibility debajo siempre ================= */}
         <motion.section
