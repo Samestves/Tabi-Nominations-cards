@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import NextAuth, { DefaultSession, JWT } from "next-auth";
+import NextAuth, { DefaultSession } from "next-auth";
 import TwitterProvider from "next-auth/providers/twitter";
 
 // Extendemos la sesión y el token para incluir los campos extra
