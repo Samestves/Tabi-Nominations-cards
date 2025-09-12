@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Logo from "../components/Logot";
 import Separator from "../components/Separatort";
@@ -17,6 +17,8 @@ import {
   AvatarGroupTooltip,
 } from "@/components/ui/avatar";
 import TestLogin from "../components/TestLogin";
+import winners from "../public/winners.json";
+import { useSession } from "next-auth/react";
 
 // Configuración de animaciones
 const motionSettings = {
@@ -61,12 +63,42 @@ const AVATARS: AvatarData[] = [
 ];
 
 export default function Page() {
+  // 🔹 Hook de sesión de NextAuth
+  const { data: session } = useSession();
+
+  // Estado existente
   const [eligible, setEligible] = useState<null | boolean>(null);
   const [checkedUser, setCheckedUser] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("/shiroa.png"); // default
 
+  // 🔹 Detectamos cuando un usuario inició sesión con X
+  useEffect(() => {
+    if (session?.user?.username) {
+      const username = session.user.username;
+      setCheckedUser(username);
+
+      // Comparamos con winners.json
+      const isWinner = winners.winners.some(
+        (u: string) => u.toLowerCase() === username.toLowerCase()
+      );
+      setEligible(isWinner);
+
+      // Usamos el avatar de X si existe
+      if (session.user.avatar) {
+        setAvatarUrl(session.user.avatar);
+      }
+    }
+  }, [session]);
+
+  // Tu función handleCheck sigue igual
   const handleCheck = (username: string, isEligible: boolean | null) => {
     setCheckedUser(username);
     setEligible(isEligible);
+    // Buscar avatar de la lista de AVATARS si quieres fallback
+    const avatar = AVATARS.find(
+      (a) => a.tooltip.toLowerCase() === username.toLowerCase()
+    )?.src;
+    if (avatar) setAvatarUrl(avatar);
   };
 
   return (
@@ -165,7 +197,7 @@ export default function Page() {
               <ProfileCard
                 name={checkedUser}
                 title="Nomination Card"
-                avatarUrl="/shiroa.png"
+                avatarUrl={avatarUrl}
                 iconUrl="/icon.png"
                 showUserInfo={false}
                 enableTilt
