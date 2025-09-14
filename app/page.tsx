@@ -71,14 +71,18 @@ export default function Page() {
   // 🔹 Actualiza estado cuando cambie la sesión
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
-      const username = session.user.username || session.user.name || "";
+      // 1️⃣ Normalizamos el username quitando '@' si existe
+      const rawUsername = session.user.username || session.user.name || "";
+      const username = rawUsername.replace(/^@/, "");
       setCheckedUser(username);
 
+      // 2️⃣ Verificamos si es ganador usando lowercase
       const isWinner = winners.winners.some(
         (u: string) => u.toLowerCase() === username.toLowerCase()
       );
       setEligible(isWinner);
 
+      // 3️⃣ Obtenemos el avatar real: avatar de NextAuth o imagen de fallback
       setAvatarUrl(session.user.avatar || session.user.image || "/shiroa.png");
     } else {
       setEligible(null);
