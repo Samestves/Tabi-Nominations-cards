@@ -4,8 +4,8 @@ declare module "next-auth" {
   interface Session {
     user: {
       id?: string;
-      avatar?: string; // sólo lo extra
-    } & DefaultSession["user"];
+      avatar?: string;
+    } & DefaultSession["user"]; // name, email, image ya existen
   }
 
   interface User extends DefaultUser {
@@ -17,6 +17,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
+    name?: string;
     avatar?: string;
   }
 }
