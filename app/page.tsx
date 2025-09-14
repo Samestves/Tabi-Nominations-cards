@@ -81,8 +81,8 @@ export default function Page() {
       );
       setEligible(isWinner);
 
-      if (session.user.avatar) {
-        setAvatarUrl(session.user.avatar);
+      if (session.user.image) {
+        setAvatarUrl(session.user.image);
       }
     } else {
       setEligible(null);
