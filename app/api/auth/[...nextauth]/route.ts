@@ -18,13 +18,11 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, profile }) {
-      console.log("[JWT callback] token before:", token);
-
-      if (profile) {
+    async jwt({ token, account, profile }) {
+      // 🔹 Solo en el primer login recibimos 'profile'
+      if (account && profile) {
         const p = profile as TwitterProfile;
         token.id = p.id;
-        // Quitamos la @ si viene incluida
         token.username = p.username?.startsWith("@")
           ? p.username.slice(1)
           : p.username;
@@ -32,20 +30,20 @@ const handler = NextAuth({
         token.avatar = p.profile_image_url;
       }
 
-      console.log("[JWT callback] token after:", token);
+      // 🔹 En siguientes requests mantenemos valores existentes
+      token.username = token.username || token.name || "unknown";
+      token.avatar = token.avatar || "";
+
       return token;
     },
 
     async session({ session, token }) {
-      console.log("[SESSION callback] token:", token);
-
       if (session.user) {
         session.user.id = token.id!;
-        session.user.username = token.username || token.name || "unknown"; // fallback
+        session.user.username = token.username!;
         session.user.name = token.name!;
         session.user.avatar = token.avatar!;
       }
-
       return session;
     },
   },

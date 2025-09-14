@@ -70,11 +70,8 @@ export default function Page() {
 
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
-      // ✅ Usamos const porque no se reasigna
-      const rawUsername = session.user.username || session.user.name || "";
-      const username = rawUsername.startsWith("@")
-        ? rawUsername.slice(1)
-        : rawUsername;
+      // 🔹 Usamos username del token que ya viene limpio
+      const username = session.user.username;
       console.log("[DEBUG] Logged in username:", username);
       console.log("[DEBUG] Full session object:", session);
 
@@ -87,10 +84,8 @@ export default function Page() {
       console.log("[DEBUG] Is winner?", isWinner);
       setEligible(isWinner);
 
-      // 🔹 Avatar: primero Twitter avatar, luego imagen de NextAuth, fallback
-      const avatar = session.user.avatar || session.user.image || "/shiroa.png";
-      console.log("[DEBUG] Avatar URL:", avatar);
-      setAvatarUrl(avatar);
+      // 🔹 Avatar del token
+      setAvatarUrl(session.user.avatar || "/shiroa.png");
     } else {
       setEligible(null);
       setCheckedUser("");
