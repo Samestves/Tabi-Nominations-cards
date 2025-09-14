@@ -3,12 +3,12 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 
 export default function TestLogin() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
-  const username = session?.user?.name; // 🔹 ahora name contiene el username
+  if (status === "loading") return <p className="text-white">Loading...</p>;
 
   return (
-    <div className="text-white p-6">
+    <div className="text-white p-6 flex flex-col items-center gap-2">
       {!session ? (
         <button
           onClick={() => signIn("twitter")}
@@ -17,15 +17,20 @@ export default function TestLogin() {
           Login con X
         </button>
       ) : (
-        <div>
-          <p>Hola, {username}</p> {/* 🔹 Mostramos el username de X */}
+        <>
+          <p>Hola {session.user?.name}</p>
+          <img
+            src={session.user?.image || "/shiroa.png"}
+            alt="Avatar"
+            className="w-12 h-12 rounded-full mt-1"
+          />
           <button
             onClick={() => signOut()}
             className="mt-2 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600"
           >
             Logout
           </button>
-        </div>
+        </>
       )}
     </div>
   );

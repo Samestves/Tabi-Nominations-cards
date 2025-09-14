@@ -1,62 +1,60 @@
-import NextAuth, { DefaultSession } from "next-auth";
+// app/api/auth/[...nextauth]/route.ts
+import NextAuth from "next-auth";
 import TwitterProvider from "next-auth/providers/twitter";
 
-// 🔹 Extender la sesión sin romper el tipo original
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id?: string;
-      avatar?: string;
-      // ⚠️ No agregamos username, usamos `name` en su lugar
-    } & DefaultSession["user"];
-  }
-}
-
-// 🔹 Extender el JWT para almacenar info extra
-declare module "next-auth/jwt" {
-  interface JWT {
-    id?: string;
-    name?: string; // aquí guardamos el username de Twitter
-    avatar?: string;
-  }
-}
-
-// Tipo personalizado para el profile de Twitter v2
+// ----------------------------------------
+// Tipo personalizado opcional para Twitter v2
+// ----------------------------------------
 interface TwitterProfile {
   id: string;
-  name: string; // nombre completo
-  username: string; // username real de X/Twitter
+  name: string;
+  username: string;
   profile_image_url: string;
 }
 
+// ----------------------------------------
+// Configuración principal de NextAuth
+// ----------------------------------------
 const handler = NextAuth({
+  // 🔹 Proveedores de autenticación
   providers: [
     TwitterProvider({
       clientId: process.env.TWITTER_CLIENT_ID!,
       clientSecret: process.env.TWITTER_CLIENT_SECRET!,
-      version: "2.0",
+      version: "2.0", // usamos Twitter API v2
     }),
   ],
+
+  // 🔹 Callbacks para personalizar JWT y sesión
   callbacks: {
+    // Este callback se ejecuta al crear/actualizar el JWT
     async jwt({ token, profile }) {
       if (profile) {
         const twitterProfile = profile as TwitterProfile;
-        token.id = twitterProfile.id;
-        token.name = twitterProfile.username; // guardamos el username aquí
-        token.avatar = twitterProfile.profile_image_url;
+        token.name = twitterProfile.name; // nombre visible
+        token.avatar = twitterProfile.profile_image_url; // avatar
       }
       return token;
     },
+
+    // Este callback se ejecuta cuando la sesión se devuelve al cliente
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.name = token.name as string; // accedemos al username
-        session.user.avatar = token.avatar as string;
+        session.user.name = token.name as string; // nombre del usuario
+        session.user.image = token.avatar as string; // avatar del usuario
       }
       return session;
     },
   },
+
+  // 🔹 Clave secreta para encriptar JWT
   secret: process.env.NEXTAUTH_SECRET,
+
+  // 🔹 Opciones de página (opcional)
+  pages: {
+    signIn: "/", // si quieres redirigir a tu home para login
+  },
 });
 
+// Exportamos el handler para GET y POST
 export { handler as GET, handler as POST };
