@@ -64,31 +64,32 @@ const AVATARS: AvatarData[] = [
 
 export default function Page() {
   // 🔹 Hook de sesión de NextAuth
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   // Estado existente
   const [eligible, setEligible] = useState<null | boolean>(null);
   const [checkedUser, setCheckedUser] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("/shiroa.png"); // default
 
-  // 🔹 Detectamos cuando un usuario inició sesión con X
   useEffect(() => {
-    if (session?.user?.username) {
-      const username = session.user.username;
+    if (status === "authenticated" && session?.user?.name) {
+      const username: string = session.user.name; // ✅ Aquí ya es string
       setCheckedUser(username);
 
-      // Comparamos con winners.json
       const isWinner = winners.winners.some(
         (u: string) => u.toLowerCase() === username.toLowerCase()
       );
       setEligible(isWinner);
 
-      // Usamos el avatar de X si existe
       if (session.user.avatar) {
         setAvatarUrl(session.user.avatar);
       }
+    } else {
+      setEligible(null);
+      setCheckedUser("");
+      setAvatarUrl("/shiroa.png");
     }
-  }, [session]);
+  }, [status, session]);
 
   // Tu función handleCheck sigue igual
   const handleCheck = (username: string, isEligible: boolean | null) => {

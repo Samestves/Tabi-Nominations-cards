@@ -1,20 +1,23 @@
 import NextAuth, { DefaultSession } from "next-auth";
 import TwitterProvider from "next-auth/providers/twitter";
 
-// Extendemos la sesión y el token para incluir los campos extra
 declare module "next-auth" {
   interface Session {
     user: {
-      id: string;
-      username: string;
-      avatar: string;
+      id?: string;
+      username?: string;
+      avatar?: string;
     } & DefaultSession["user"];
   }
+}
 
+// Extendemos el JWT
+declare module "next-auth/jwt" {
   interface JWT {
-    id: string;
-    username: string;
-    avatar: string;
+    id?: string;
+    username?: string;
+    name?: string;
+    avatar?: string;
   }
 }
 
@@ -55,7 +58,7 @@ const handler = NextAuth({
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET, // obligatorio en producción
+  secret: process.env.NEXTAUTH_SECRET,
 });
 
 export { handler as GET, handler as POST };
