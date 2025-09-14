@@ -71,7 +71,10 @@ export default function Page() {
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
       // ✅ Usamos const porque no se reasigna
-      const username = session.user.username || session.user.name || "";
+      const rawUsername = session.user.username || session.user.name || "";
+      const username = rawUsername.startsWith("@")
+        ? rawUsername.slice(1)
+        : rawUsername;
       console.log("[DEBUG] Logged in username:", username);
       console.log("[DEBUG] Full session object:", session);
 

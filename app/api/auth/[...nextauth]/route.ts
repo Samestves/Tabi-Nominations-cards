@@ -19,22 +19,33 @@ const handler = NextAuth({
   ],
   callbacks: {
     async jwt({ token, profile }) {
+      console.log("[JWT callback] token before:", token);
+
       if (profile) {
         const p = profile as TwitterProfile;
         token.id = p.id;
-        token.username = p.username;
+        // Quitamos la @ si viene incluida
+        token.username = p.username?.startsWith("@")
+          ? p.username.slice(1)
+          : p.username;
         token.name = p.name;
         token.avatar = p.profile_image_url;
       }
+
+      console.log("[JWT callback] token after:", token);
       return token;
     },
+
     async session({ session, token }) {
+      console.log("[SESSION callback] token:", token);
+
       if (session.user) {
         session.user.id = token.id!;
-        session.user.username = token.username!;
+        session.user.username = token.username || token.name || "unknown"; // fallback
         session.user.name = token.name!;
         session.user.avatar = token.avatar!;
       }
+
       return session;
     },
   },
