@@ -5,6 +5,8 @@ import { signIn, signOut, useSession } from "next-auth/react";
 export default function TestLogin() {
   const { data: session } = useSession();
 
+  const username = session?.user?.name; // 🔹 ahora name contiene el username
+
   return (
     <div className="text-white p-6">
       {!session ? (
@@ -16,7 +18,7 @@ export default function TestLogin() {
         </button>
       ) : (
         <div>
-          <p>Hola {session.user?.name}</p>
+          <p>Hola, {username}</p> {/* 🔹 Mostramos el username de X */}
           <button
             onClick={() => signOut()}
             className="mt-2 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600"
