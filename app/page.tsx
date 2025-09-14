@@ -70,37 +70,28 @@ export default function Page() {
 
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
-      // 🔹 Log completo de la sesión para depuración
-      console.log("Session completa:", session);
-      console.log("Usuario de sesión:", session.user);
-
-      // 🔹 Obtiene el username real de Twitter
-      let username = session.user.username || session.user.name || "";
-      // 🔹 Normaliza: quita el '@' y pasa a minúsculas
-      const normalizedUsername = username.replace(/^@/, "").toLowerCase();
-
-      console.log("Twitter username raw:", username);
-      console.log("Twitter username normalized:", normalizedUsername);
+      // ✅ Usamos const porque no se reasigna
+      const username = session.user.username || session.user.name || "";
+      console.log("[DEBUG] Logged in username:", username);
+      console.log("[DEBUG] Full session object:", session);
 
       setCheckedUser(username);
 
-      // 🔹 Verifica si está en winners.json
+      // 🔹 Compara contra winners.json
       const isWinner = winners.winners.some(
-        (u: string) => u.toLowerCase() === normalizedUsername
+        (u: string) => u.toLowerCase() === username.toLowerCase()
       );
-      console.log("Is winner?", isWinner);
-
+      console.log("[DEBUG] Is winner?", isWinner);
       setEligible(isWinner);
 
-      // 🔹 Configura el avatar
+      // 🔹 Avatar: primero Twitter avatar, luego imagen de NextAuth, fallback
       const avatar = session.user.avatar || session.user.image || "/shiroa.png";
-      console.log("Avatar seleccionado:", avatar);
+      console.log("[DEBUG] Avatar URL:", avatar);
       setAvatarUrl(avatar);
     } else {
       setEligible(null);
       setCheckedUser("");
       setAvatarUrl("/shiroa.png");
-      console.log("No hay sesión activa");
     }
   }, [status, session]);
 
