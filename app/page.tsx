@@ -63,17 +63,15 @@ const AVATARS: AvatarData[] = [
 ];
 
 export default function Page() {
-  // 🔹 Hook de sesión de NextAuth
   const { data: session, status } = useSession();
-
-  // Estado existente
   const [eligible, setEligible] = useState<null | boolean>(null);
   const [checkedUser, setCheckedUser] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("/shiroa.png"); // default
 
+  // 🔹 Actualiza estado cuando cambie la sesión
   useEffect(() => {
-    if (status === "authenticated" && session?.user?.name) {
-      const username: string = session.user.name; // ✅ Aquí ya es string
+    if (status === "authenticated" && session?.user) {
+      const username = session.user.username || session.user.name || "";
       setCheckedUser(username);
 
       const isWinner = winners.winners.some(
@@ -81,9 +79,7 @@ export default function Page() {
       );
       setEligible(isWinner);
 
-      if (session.user.image) {
-        setAvatarUrl(session.user.image);
-      }
+      setAvatarUrl(session.user.avatar || session.user.image || "/shiroa.png");
     } else {
       setEligible(null);
       setCheckedUser("");
@@ -91,11 +87,11 @@ export default function Page() {
     }
   }, [status, session]);
 
-  // Tu función handleCheck sigue igual
+  // 🔹 Función de check manual
   const handleCheck = (username: string, isEligible: boolean | null) => {
     setCheckedUser(username);
     setEligible(isEligible);
-    // Buscar avatar de la lista de AVATARS si quieres fallback
+
     const avatar = AVATARS.find(
       (a) => a.tooltip.toLowerCase() === username.toLowerCase()
     )?.src;
@@ -104,66 +100,24 @@ export default function Page() {
 
   return (
     <CenteredContainer className="relative min-h-screen bg-black text-white overflow-x-hidden">
-      {/* Fondo */}
       <BackgroundGradient />
       <LightRaysComponent />
 
-      <main className="relative z-10 flex flex-col items-center w-full px-4 sm:px-6 pt-6 pb-12 bg-transparent">
+      <main className="relative z-10 flex flex-col items-center w-full px-4 sm:px-6 pt-6 pb-12">
         <Logo />
         <Separator />
 
-        {/* ================= Resultado (Gif o Card) ================= */}
+        {/* Resultado */}
         <div className="flex justify-center mt-12 min-h-[20rem] items-center">
           {eligible === null && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              className="flex flex-col items-center gap-4"
-              role="status"
+              {...motionSettings}
+              className="flex flex-col items-center"
             >
-              {/* Skeleton Card con animación flotante */}
-              <motion.div
-                animate={{ y: [0, -6, 0] }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="w-72 h-96 rounded-2xl relative overflow-hidden 
-                   bg-gradient-to-br from-red-950 via-red-900 to-black 
-                   shadow-[0_0_35px_rgba(255,0,0,0.6)] border border-red-700/40"
-              >
-                {/* Resplandor interno */}
-                <div className="absolute inset-0 bg-gradient-radial from-red-700/30 via-transparent to-transparent" />
-
-                {/* Efecto shimmer */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]" />
-
-                {/* Misterioso "?" */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <motion.span
-                    className="relative text-gray-300 text-7xl font-bold 
-                       drop-shadow-[0_0_20px_rgba(255,0,0,1)]"
-                    animate={{
-                      scale: [1, 1.15, 1],
-                      textShadow: [
-                        "0 0 15px #ff0000",
-                        "0 0 35px #ff3333",
-                        "0 0 15px #ff0000",
-                      ],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    ?{/* Halo épico detrás del "?" */}
-                    <span className="absolute inset-0 rounded-full w-20 h-20 -z-10 mx-auto blur-2xl bg-red-600/30 animate-pulse" />
-                  </motion.span>
-                </div>
-              </motion.div>
+              {/* Carta misteriosa */}
+              <div className="w-72 h-96 rounded-2xl bg-gradient-to-br from-red-950 via-red-900 to-black shadow-[0_0_35px_rgba(255,0,0,0.6)] border border-red-700/40 flex items-center justify-center text-7xl font-bold text-gray-300">
+                ?
+              </div>
             </motion.div>
           )}
 
@@ -172,24 +126,20 @@ export default function Page() {
               {...motionSettings}
               className="flex flex-col items-center mt-8"
             >
-              <motion.img
+              <img
                 src="/angry.gif"
                 alt="User not eligible"
                 className="w-72 h-72 object-contain"
               />
               <p className="mt-4 text-center text-red-400 font-semibold text-lg">
-                You are not eligible for the nomination card at this time. Keep
-                contributing and try again!
+                You are not eligible for the nomination card at this time.
               </p>
             </motion.div>
           )}
 
           {eligible === true && (
             <motion.div
-              key={checkedUser} // 🔹 hace que todo se reinicie
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              {...motionSettings}
               className="flex flex-col items-center"
             >
               <p className="text-green-400 font-semibold text-lg mb-4">
@@ -209,10 +159,10 @@ export default function Page() {
           )}
         </div>
 
-        {/* 🔹 Aquí metemos el login */}
+        {/* Login */}
         <TestLogin />
 
-        {/* ================= Check Eligibility debajo siempre ================= */}
+        {/* Check Eligibility */}
         <motion.section
           {...motionSettings}
           className="w-full max-w-sm flex flex-col items-center gap-4 mt-12 mb-12"
@@ -223,7 +173,6 @@ export default function Page() {
           <EligibilityChecker onCheck={handleCheck} />
         </motion.section>
 
-        {/* FAQ */}
         <FAQ
           items={[
             {
@@ -241,19 +190,15 @@ export default function Page() {
             },
           ]}
         />
-        {/* ================== Separator + Avatar Credits ================== */}
+
+        {/* Avatares */}
         <div className="flex flex-col items-center gap-2 mt-40 mb-8">
-          {/* Separador con margen inferior */}
           <div className="mb-3 w-full">
             <Separator />
           </div>
-
-          {/* Título más pequeño y pegado a los avatares */}
           <h3 className="text-gray-400 font-light text-xs uppercase tracking-wide mb-1">
             Contributors
           </h3>
-
-          {/* Avatares centrados justo debajo del título */}
           <div className="flex -space-x-3 mt-1 justify-center items-center">
             {AVATARS.map((avatar, index) => (
               <a

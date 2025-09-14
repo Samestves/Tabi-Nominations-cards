@@ -18,9 +18,9 @@ export default function TestLogin() {
         </button>
       ) : (
         <>
-          <p>Hola {session.user?.name}</p>
+          <p>Hola {session.user?.username || session.user?.name}</p>
           <img
-            src={session.user?.image || "/shiroa.png"}
+            src={session.user?.avatar || session.user?.image || "/shiroa.png"}
             alt="Avatar"
             className="w-12 h-12 rounded-full mt-1"
           />
