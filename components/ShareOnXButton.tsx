@@ -15,7 +15,7 @@ const XIcon = ({ className = "w-5 h-5" }) => (
 // ------------------------
 // COMPONENT: ShareOnXButton
 // ------------------------
-const ShareOnXButton = ({ username }: { username: string }) => {
+const ShareOnXButton = () => {
   const handleShare = () => {
     const text = encodeURIComponent(
       `💢🔥 Just got my *Nomination Card* in @Tabichain 🚀\n\nOne step closer to Win my SBT!! 💢✨\n\nCheck yours now 👇\n\n`

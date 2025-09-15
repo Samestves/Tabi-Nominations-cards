@@ -70,11 +70,9 @@ type EligibilityState = boolean | null;
 const EligibilityResult = ({
   eligible,
   username,
-  avatarUrl,
 }: {
   eligible: EligibilityState;
   username: string;
-  avatarUrl: string;
 }) => {
   {
     if (eligible === null) return <MysteryCard />;
@@ -111,7 +109,7 @@ const EligibilityResult = ({
       />
 
       {/* Botón para compartir en X */}
-      <ShareOnXButton username={username} />
+      <ShareOnXButton />
     </motion.div>
   );
 };
@@ -153,7 +151,7 @@ const AvatarsList = ({ avatars }: { avatars: AvatarData[] }) => (
 export default function Page() {
   const [checkedUser, setCheckedUser] = useState("");
   const [eligible, setEligible] = useState<EligibilityState>(null);
-  const [avatarUrl, setAvatarUrl] = useState("/shiroa.png");
+  const [, setAvatarUrl] = useState("/shiroa.png");
 
   const handleCheck = (username: string) => {
     setCheckedUser(username);
@@ -204,11 +202,7 @@ export default function Page() {
 
         {/* Resultados de elegibilidad */}
         <div className="flex justify-center mt-12 min-h-[20rem] items-center">
-          <EligibilityResult
-            eligible={eligible}
-            username={checkedUser}
-            avatarUrl={avatarUrl}
-          />
+          <EligibilityResult eligible={eligible} username={checkedUser} />
         </div>
 
         {/* Checker */}
