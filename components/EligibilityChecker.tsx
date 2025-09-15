@@ -72,8 +72,9 @@ export default function EligibilityChecker({
   const normalizeUsername = (input: string) => {
     let name = input.trim().toLowerCase();
     if (name.startsWith("@")) name = name.slice(1);
-    if (name.startsWith("https://x.com/"))
-      name = name.replace("https://x.com/", "");
+    name = name
+      .replace(/^https?:\/\/(x|twitter)\.com\//, "") // soporta twitter.com y x.com
+      .replace(/\?.*$/, ""); // elimina query strings tipo ?s=21
     return name;
   };
 

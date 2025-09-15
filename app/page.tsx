@@ -27,6 +27,12 @@ const motionSettings = {
   transition: { duration: 0.5, delay: 0.5 },
 };
 
+// Función para truncar el nombre visualmente
+const formatUsername = (name: string) => {
+  if (!name) return "";
+  return name.length > 12 ? name.slice(0, 6) + "…" : name;
+};
+
 // Tipado de avatares
 interface AvatarData {
   src: string;
@@ -98,7 +104,7 @@ const EligibilityResult = ({
   return (
     <motion.div {...motionSettings} className="flex flex-col items-center">
       <ProfileCard
-        name={username}
+        name={formatUsername(username)}
         title="Nomination Card"
         avatarUrl="/shiroa.png"
         iconUrl="/icon.png"
