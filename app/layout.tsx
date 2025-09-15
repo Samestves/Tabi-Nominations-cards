@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tabi Nominations Card",
-  description: "Check your eligibility with X login",
+  title: "Tabi Nomination Cards",
+  description: "Check your eligibility for Nomination Cards",
 };
 
 export default function RootLayout({
